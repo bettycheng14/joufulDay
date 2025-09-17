@@ -1,0 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Sedgwick+Ave&display=swap');
+/* Reset some default styling */
+body, h1, h2, h3, h4, h5, h6, p {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+}
+
+html, body {
+    height: 100%;
+}
+
+main {
+    flex: 1; /* Push footer to bottom */
+}
+/* Navbar */
+.navbar {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #007bff !important;
+    font-family: "Sedgwick Ave", cursive;
+}
+
+.nav-link {
+    color: #333 !important;
+    font-weight: 500;
+}
+
+.nav-link.active {
+    color: #007bff !important;
+    font-size: 1.2rem;
+    font-family: "Sedgwick Ave", cursive;
+    ;
+}
+
+.brand {
+    font-family: "Sedgwick Ave", cursive;
+}
+
+/* Carousel sizing */
+#heroCarousel {
+    max-height: 50vh;
+}
+
+#heroCarousel .carousel-item {
+    height: 50vh;               /* force each slide to match container height */
+}
+
+#heroCarousel img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+#heroCarousel .carousel-caption h2 {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.breadcrumb a {
+    color: #0d6efd; /* Bootstrap primary color */
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">"; /* Use a chevron symbol */
+    color: #6c757d; /* Secondary text color */
+}
+
+/* Hero Section */
+section.bg-primary {
+    background: linear-gradient(to right, #007bff, #00c6ff);
+    color: #fff;
+}
+
+section.bg-primary h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+section.bg-primary p.lead {
+    font-size: 1.2rem;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card img {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body h5 {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.card-body p {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: #007bff;
+}
+
+.pagination .page-link:hover {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+.blog-card {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.blog-card img {
+    width: 200px;
+    object-fit: cover;
+}
+
+.blog-card-body {
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+/* Footer */
+footer {
+    background-color: #222;
+    color: #ddd;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin: 0;
+    padding: 2px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    section.bg-primary h1 {
+        font-size: 2rem;
+    }
+
+    section.bg-primary p.lead {
+        font-size: 1rem;
+    }
+
+    .card img {
+        height: 180px;
+    }
+}
+
+@media (max-width: 576px) {
+    .card img {
+        height: 150px;
+    }
+}
+@media (max-width: 768px) {
+    #heroCarousel {
+        max-height: 20vh;
+    }
+
+    #heroCarousel .carousel-item {
+        height: 20vh;               /* force each slide to match container height */
+    }
+     #heroCarousel .carousel-caption {
+        top: auto;
+        bottom: 10%; /* move down a bit for better view */
+        transform: none;
+        text-align: center;
+    }
+
+    #heroCarousel .carousel-caption h2 {
+        font-size: 1.2rem;
+    }
+    #heroCarousel .carousel-caption p {
+        font-size: 0.9rem;
+    }
+    #heroCarousel .carousel-caption .btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    .blog-card {
+        flex-direction: column;
+    }
+    
+    .blog-card img {
+        width: 100%;
+        height: auto;
+    }
+}
