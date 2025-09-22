@@ -1,18 +1,45 @@
-// Require the express web application framework (https://expressjs.com)
+require('dotenv').config()
 const express = require('express')
+const mongoose = require('mongoose')
+const session = require('express-session')
+const path = require('path')
+const morgan = require('morgan');
 
-// Create a new web application by calling the express function
+const authRoutes = require('./routes/authRoutes')
+const enquiryRoutes = require('./routes/enquiryRoutes')
+
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
-// Tell our application to serve all the files under the `public_html` directory
-app.use(express.static('public_html'))
+// Log all HTTP requests to console
+app.use(morgan('tiny'));
 
-// Tell our application to listen to requests at port 3000 on the localhost
-app.listen(port, ()=> {
-  // When the application starts, print to the console that our app is
-  // running at http://localhost:3000. Print another message indicating
-  // how to shut the server down.
-  console.log(`Web server running at: http://localhost:${port}`)
-  console.log(`Type Ctrl+C to shut down the web server`)
-})
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.static(path.join(__dirname, 'public_html')))
+
+// Connect to MongoDB
+if (!process.env.MONGO_URI) {
+  console.error('Please set MONGO_URI in .env')
+  process.exit(1)
+}
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch(err => {
+    console.error('❌ MongoDB error:', err)
+    process.exit(1)
+  })
+
+// Sessions (local memory)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'devsecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 * 2 } // 2 hours
+}))
+
+// Routes
+app.use('/', authRoutes)
+app.use('/', enquiryRoutes)
+
+app.listen(port, () => console.log(`Web server running at: http://localhost:${port}`))

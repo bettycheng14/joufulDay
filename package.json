@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node .",
+    "dev": "nodemon .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -17,7 +18,13 @@
   "author": "SIT774",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.2",
     "express": "^4.21.2",
-    "node": "^22.17.0"
+    "express-session": "^1.18.2",
+    "mongoose": "^8.18.1",
+    "morgan": "^1.10.1",
+    "node": "^22.17.0",
+    "nodemon": "^3.1.10"
   }
 }
