@@ -5,119 +5,69 @@ const phoneInput = document.getElementById("memberPhone");
 const passwordInput = document.getElementById("memberPassword");
 const confirmPasswordInput = document.getElementById("memberConfirmPassword");
 
-// Real-time validation helper
-const validateField = (input, pattern = null, required = true) => {
-	input.addEventListener("input", () => {
-		input.classList.remove("is-invalid", "is-valid");
-		if (required && input.value.trim() === "") {
-			input.classList.add("is-invalid");
-		} else if (pattern && !input.value.trim().match(pattern)) {
-			input.classList.add("is-invalid");
-		} else {
-			input.classList.add("is-valid");
-		}
-	});
-};
+async function loadMemberInfo() {
+  try {
+    const res = await fetch("/api/member");
+    if (res.status !== 200) return (window.location.href = "/login");
 
-// Apply real-time validation
-validateField(nameInput);
-validateField(emailInput, /^[^ ]+@[^ ]+\.[a-z]{2,}$/);
-validateField(phoneInput, /^[0-9]{8,15}$/, false);
-validateField(passwordInput, /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/); // At least 6 chars
+    const user = await res.json();
+    nameInput.value = user.name || "";
+    emailInput.value = user.email || "";
+    phoneInput.value = user.phone || "";
+  } catch (err) {
+    console.error("Error fetching member info:", err);
+    window.location.href = "/login";
+  }
+}
 
-// Confirm password validation
-confirmPasswordInput.addEventListener("input", () => {
-	confirmPasswordInput.classList.remove("is-invalid", "is-valid");
-	if (confirmPasswordInput.value.trim() === "") {
-		confirmPasswordInput.classList.add("is-invalid");
-	} else if (confirmPasswordInput.value !== passwordInput.value) {
-		confirmPasswordInput.classList.add("is-invalid");
-	} else {
-		confirmPasswordInput.classList.add("is-valid");
-	}
-});
+window.addEventListener("DOMContentLoaded", loadMemberInfo);
 
 // Form submission
-form.addEventListener("submit", (e) => {
-	e.preventDefault();
-	let valid = true;
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-	// Name
-	if (nameInput.value.trim() === "") {
-		nameInput.classList.add("is-invalid");
-		valid = false;
-	}
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const password = passwordInput.value.trim();
+  const confirm = confirmPasswordInput.value.trim();
 
-	// Email
-	const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,}$/;
-	if (
-		emailInput.value.trim() === "" ||
-		!emailInput.value.trim().match(emailPattern)
-	) {
-		emailInput.classList.add("is-invalid");
-		valid = false;
-	}
+  if (!name) return alert("Name is required.");
+  if (password && password !== confirm) return alert("Passwords do not match.");
 
-	// Phone (optional)
-	const phonePattern = /^[0-9]{8,15}$/;
-	if (
-		phoneInput.value.trim() !== "" &&
-		!phoneInput.value.trim().match(phonePattern)
-	) {
-		phoneInput.classList.add("is-invalid");
-		valid = false;
-	}
+  try {
+    const res = await fetch("/api/member", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone, password }),
+    });
 
-	// Password
-	if (passwordInput.value.trim().length < 6) {
-		passwordInput.classList.add("is-invalid");
-		valid = false;
-	}
-
-	// Confirm Password
-	if (
-		confirmPasswordInput.value.trim() === "" ||
-		confirmPasswordInput.value !== passwordInput.value
-	) {
-		confirmPasswordInput.classList.add("is-invalid");
-		valid = false;
-	}
-
-	if (valid) {
-		// Success alert
-		const alertDiv = document.createElement("div");
-		alertDiv.className =
-			"alert alert-success alert-dismissible fade show mt-3";
-		alertDiv.role = "alert";
-		alertDiv.innerHTML = `
-            ✅ Member information updated successfully!
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-		form.prepend(alertDiv);
-
-		// Reset form
-		form.reset();
-		[
-			nameInput,
-			emailInput,
-			phoneInput,
-			passwordInput,
-			confirmPasswordInput,
-		].forEach((el) => el.classList.remove("is-valid", "is-invalid"));
-	}
+    const data = await res.json();
+    if (data.success) {
+      alert("✅ Member information updated successfully!");
+      loadMemberInfo();
+      form.reset();
+      [nameInput, phoneInput, passwordInput, confirmPasswordInput].forEach(
+        (el) => el.classList.remove("is-valid", "is-invalid")
+      );
+    } else {
+      alert("Update failed: " + (data.error || "Unknown error"));
+    }
+  } catch (err) {
+    alert("Error connecting to server.");
+    console.error(err);
+  }
 });
 
-// Toggle between sections
 document.getElementById("info-tab").addEventListener("click", () => {
-	document.getElementById("memberInfoSection").classList.remove("d-none");
-	document.getElementById("bookingsSection").classList.add("d-none");
-	document.getElementById("info-tab").classList.add("active");
-	document.getElementById("bookings-tab").classList.remove("active");
+  document.getElementById("memberInfoSection").classList.remove("d-none");
+  document.getElementById("bookingsSection").classList.add("d-none");
+  document.getElementById("info-tab").classList.add("active");
+  document.getElementById("bookings-tab").classList.remove("active");
 });
 
 document.getElementById("bookings-tab").addEventListener("click", () => {
-	document.getElementById("memberInfoSection").classList.add("d-none");
-	document.getElementById("bookingsSection").classList.remove("d-none");
-	document.getElementById("bookings-tab").classList.add("active");
-	document.getElementById("info-tab").classList.remove("active");
+  document.getElementById("memberInfoSection").classList.add("d-none");
+  document.getElementById("bookingsSection").classList.remove("d-none");
+  document.getElementById("bookings-tab").classList.add("active");
+  document.getElementById("info-tab").classList.remove("active");
 });

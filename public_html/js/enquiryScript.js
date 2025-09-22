@@ -2,6 +2,7 @@ const form = document.getElementById("enquiryForm");
 const nameInput = document.getElementById("name");
 const emailInput = document.getElementById("email");
 const phoneInput = document.getElementById("phone");
+const subjectInput = document.getElementById("subject");
 const messageInput = document.getElementById("message");
 const captchaInput = document.getElementById("captcha");
 const captchaDisplay = document.getElementById("captchaCode");
@@ -48,8 +49,8 @@ captchaInput.addEventListener("input", () => {
 	}
 });
 
-// Form submission
-form.addEventListener("submit", (e) => {
+// Handle form submit with fetch
+form.addEventListener("submit", async (e) => {
 	e.preventDefault();
 
 	let valid = true;
@@ -95,25 +96,65 @@ form.addEventListener("submit", (e) => {
 		captchaError.style.display = "none";
 	}
 
-	if (valid) {
-		// Show success alert
+	if (!valid) return;
+
+	const enquiryData = {
+		name: nameInput.value.trim(),
+		email: emailInput.value.trim(),
+		phone: phoneInput.value.trim(),
+		subject: subjectInput.value.trim(),
+		message: messageInput.value.trim(),
+	};
+
+	try {
+		const response = await fetch("/enquiry", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(enquiryData),
+		});
+
+		if (response.ok) {
+			const alertDiv = document.createElement("div");
+			alertDiv.className =
+				"alert alert-success alert-dismissible fade show mt-3";
+			alertDiv.role = "alert";
+			alertDiv.innerHTML = `
+                ✅ Thank you! Your enquiry has been submitted.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+			form.prepend(alertDiv);
+
+			form.reset();
+			[
+				nameInput,
+				emailInput,
+				phoneInput,
+				subjectInput,
+				messageInput,
+				captchaInput,
+			].forEach((el) => el.classList.remove("is-valid", "is-invalid"));
+			generateCaptcha();
+		} else {
+			const alertDiv = document.createElement("div");
+			alertDiv.className =
+				"alert alert-danger alert-dismissible fade show mt-3";
+			alertDiv.role = "alert";
+			alertDiv.innerHTML = `
+                ❌ Failed to submit enquiry. Please try again later.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+			form.prepend(alertDiv);
+		}
+	} catch (error) {
+		console.error("Error submitting enquiry:", error);
 		const alertDiv = document.createElement("div");
 		alertDiv.className =
-			"alert alert-success alert-dismissible fade show mt-3";
+			"alert alert-danger alert-dismissible fade show mt-3";
 		alertDiv.role = "alert";
 		alertDiv.innerHTML = `
-            Thank you! Your enquiry has been submitted.
+            ❌ Error submitting enquiry. Please try again later.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
 		form.prepend(alertDiv);
-
-		// Reset form
-		form.reset();
-		[nameInput, emailInput, phoneInput, messageInput, captchaInput].forEach(
-			(el) => el.classList.remove("is-valid", "is-invalid")
-		);
-
-		// Regenerate CAPTCHA
-		generateCaptcha();
 	}
 });
