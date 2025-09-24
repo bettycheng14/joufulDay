@@ -10,7 +10,7 @@
 </head>
 
 <body>
-  <%- include('partials/header') %>
+    <%- include('partials/header') %>
 
         <!-- Hero Section -->
         <section class="bg-primary text-white text-center py-5">
@@ -58,11 +58,14 @@
                                 <div class="invalid-feedback">Message is required.</div>
                             </div>
                             <div class="mb-3">
-                                <label for="captcha" class="form-label" id="captchaLabel">CAPTCHA Code</label>
-                                <div id="captchaCode" class="fs-3 mb-2"></div>
-                                <input type="text" class="form-control" id="captcha" placeholder="Enter CAPTCHA"
-                                    required>
-                                <div class="invalid-feedback" id="captchaError">Please enter the correct CAPTCHA.</div>
+                                <label for="captcha" class="form-label">Enter the Captcha Code shown:</label>
+                                <div class="d-flex align-items-center">
+                                    <img src="<%= captcha %>" alt="validation" class="me-3" style="height:50px;">
+                                    <input type="text" id="captcha" name="captcha" class="form-control"
+                                        placeholder="Enter code" required>
+                                    <div class="invalid-feedback" id="captchaError">Please enter the correct CAPTCHA.
+                                    </div>
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary">Submit Enquiry</button>
@@ -72,10 +75,10 @@
                 </div>
             </div>
         </section>
-    <%- include('partials/footer') %>
+        <%- include('partials/footer') %>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/enquiryScript.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="js/enquiryScript.js"></script>
 </body>
 
 </html>
