@@ -57,15 +57,16 @@
             <h3 class="mb-2 fw-bold">Explore for more</h3>
             <form class="row g-3" method="GET" action="/destinations">
                 <div class="col-md-5">
-                    <input type="text" class="form-control" placeholder="Search by tour name or area" name="q"
-                        value="">
+                    <input type="text" class="form-control" placeholder="Search by tour name or area" name="q" value="">
                 </div>
                 <div class="col-md-5">
                     <select class="form-select" name="category">
                         <option value="">All Tour Types</option>
                         <% categories.forEach(cat=> { %>
-                            <option value="<%= cat %>"><%= cat %></option>
-                        <% }) %>
+                            <option value="<%= cat %>">
+                                <%= cat.replace(/([a-z])([A-Z])/g, '$1 $2' ).replace(/^./, str=> str.toUpperCase()) %>
+                            </option>
+                            <% }) %>
                     </select>
                 </div>
                 <div class="col-md-2">

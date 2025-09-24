@@ -30,6 +30,7 @@
                             <button class="list-group-item list-group-item-action active" id="info-tab">Member
                                 Information</button>
                             <button class="list-group-item list-group-item-action" id="bookmarks-tab">Bookmarks</button>
+                            <button class="list-group-item list-group-item-action" id="bookings-tab">Bookings</button>
                         </div>
                     </div>
 
@@ -81,28 +82,87 @@
                         <!-- bookmarks Section -->
                         <div id="bookmarksSection" class="d-none">
                             <h3 class="mb-4">Your bookmarks</h3>
-                            <p class="text-muted mb-3">Here you can view your past and upcoming bookmarks.</p>
-                            <% if (user?.bookmarkedTours.length === 0) { %>
-                            <p>You have not bookmarked any tours yet.</p>
-                            <% } else { %>
-                            <div class="row row-cols-1 row-cols-md-3 g-4">
-                                <% user?.bookmarkedTours?.forEach(tour => { %>
-                                <div class="col">
-                                    <div class="card h-100">
-                                    <img src="<%= tour.imageUrl %>" class="card-img-top" alt="<%= tour.title %>">
-                                    <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title"><%= tour.title %></h5>
-                                        <p class="card-text"><%= tour.description.substring(0, 100) %>...</p>
-                                        <p class="fw-bold">From A$<%= tour.price %></p>
-                                        <a href="/tour/<%= tour._id %>" class="btn btn-primary mt-auto">View Details</a>
+                            <% if (user?.bookmarkedTours.length===0) { %>
+                                <p>You have not bookmarked any tours yet.</p>
+                                <% } else { %>
+                                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                                        <% user?.bookmarkedTours?.forEach(tour=> { %>
+                                            <div class="col">
+                                                <div class="card h-100">
+                                                    <img src="<%= tour.imageUrl %>" class="card-img-top"
+                                                        alt="<%= tour.title %>">
+                                                    <div class="card-body d-flex flex-column">
+                                                        <h5 class="card-title">
+                                                            <%= tour.title %>
+                                                        </h5>
+                                                        <p class="card-text">
+                                                            <%= tour.description.substring(0, 100) %>...
+                                                        </p>
+                                                        <p class="fw-bold">From A$<%= tour.price %>
+                                                        </p>
+                                                        <a href="/tour/<%= tour._id %>"
+                                                            class="btn btn-primary mt-auto">View Details</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <% }) %>
                                     </div>
-                                    </div>
-                                </div>
-                                <% }) %>
-                            </div>
-                            <% } %>
+                                    <% } %>
 
                         </div>
+                        <!-- Bookings Section -->
+                        <div id="bookingsSection" class="d-none">
+                            <h3 class="mb-4">Your Bookings</h3>
+                            <p class="text-muted mb-3">Here you can view your past and upcoming bookmarks.</p>
+                            <% if (!user?.bookedTours || user.bookedTours.length===0) { %>
+                                <p>You have no bookings yet.</p>
+                                <% } else { %>
+                                    <div class="row g-4">
+                                        <% user.bookedTours.forEach(booking=> { %>
+                                            <div class="col-12">
+                                                <div class="card h-100">
+                                                    <div class="row g-0 h-100">
+                                                        <!-- Image on left -->
+                                                        <div class="col-md-4">
+                                                            <img src="<%= booking.tour.imageUrl %>"
+                                                                class="img-fluid h-100 w-100 object-fit-cover rounded"
+                                                                alt="<%= booking.tour.title %>">
+                                                        </div>
+                                                        <!-- Details on right -->
+                                                        <div class="col-md-8">
+                                                            <div class="card-body d-flex flex-column h-100">
+                                                                <h5 class="card-title">
+                                                                    <%= booking.tour.title %>
+                                                                </h5>
+                                                                <p class="card-text">
+                                                                    <%= booking.tour.description.substring(0, 150) %>...
+                                                                </p>
+                                                                <p class="mb-1"><strong>Booked Date:</strong>
+                                                                    <%= new
+                                                                        Date(booking.tourDate).toISOString().split('T')[0].replace(/-/g, '/'
+                                                                        ) %>
+                                                                </p>
+                                                                <p class="mb-1"><strong>Quantity:</strong>
+                                                                    <%= booking.quantity %>
+                                                                </p>
+                                                                <p class="mb-1"><strong>Payment Status:</strong>
+                                                                    <%= booking.paymentStatus || 'Confirmed' %>
+                                                                </p>
+                                                                <a href="/tour/<%= booking.tour._id %>"
+                                                                    class="btn btn-primary mt-auto align-self-start">View
+                                                                    Details</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <% }) %>
+                                    </div>
+                                    <% } %>
+                        </div>
+
+
+
                     </div>
                 </div>
         </section>

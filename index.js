@@ -1,12 +1,14 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const path = require("path");
 const morgan = require("morgan");
 
 const authRoutes = require("./routes/authRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 const Tour = require("./models/Tour");
 const User = require("./models/User");
 
@@ -40,10 +42,15 @@ mongoose
 // sessions
 app.use(
 	session({
-		secret: process.env.SESSION_SECRET || "devsecret",
+		secret: process.env.SESSION_SECRET,
 		resave: false,
 		saveUninitialized: false,
-		cookie: { maxAge: 1000 * 60 * 60 * 2 }, // 2 hours
+		store: MongoStore.create({
+			mongoUrl: process.env.MONGO_URI,
+			collectionName: "sessions",
+			ttl: 14 * 24 * 60 * 60, // 14 days
+		}),
+		cookie: { maxAge: 14 * 24 * 60 * 60 * 1000 }, // 14 days
 	})
 );
 
@@ -56,6 +63,7 @@ app.use((req, res, next) => {
 // Routes
 app.use("/", authRoutes);
 app.use("/", enquiryRoutes);
+app.use("/", bookingRoutes);
 
 app.get("/", async (req, res) => {
 	try {
@@ -114,7 +122,7 @@ app.get("/destinations", async (req, res) => {
 		const totalPages = Math.ceil(totalTours / limit);
 
 		const tours = await Tour.find(filter)
-			.sort({ createdAt: -1 })
+			.sort({ rating: -1 })
 			.skip((page - 1) * limit)
 			.limit(limit)
 			.lean();
@@ -166,11 +174,16 @@ app.get("/tour/:id", async (req, res) => {
 
 	const tour = await Tour.findById(req.params.id);
 	if (!tour) return res.status(404).send("Tour not found");
-	res.render("tour-details", { user, activePage: "destinations", tour });
+	res.render("tour-details", {
+		user,
+		activePage: "destinations",
+		tour,
+		query: req.query,
+	});
 });
 
-// Book a tour
-app.post("/tour/:id/book", async (req, res) => {
+// Bookmark a tour
+app.post("/tour/:id/bookmark", async (req, res) => {
 	try {
 		// Ensure user is logged in
 		if (!req.session.user)
@@ -206,40 +219,40 @@ app.post("/tour/:id/book", async (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).render("error", {
-	activePage: "",
+	res.status(404).render("error", {
+		activePage: "",
 
-    status: 404,
-    title: "Page Not Found",
-    message: "The page you are looking for does not exist."
-  });
+		status: 404,
+		title: "Page Not Found",
+		message: "The page you are looking for does not exist.",
+	});
 });
 
 // General error handler
 app.use((error, req, res, next) => {
-  const status = error.status || 500;
-  let title;
+	const status = error.status || 500;
+	let title;
 
-  switch (status) {
-    case 400:
-      title = "Bad Request";
-      break;
-    case 401:
-      title = "Unauthorized";
-      break;
-    case 403:
-      title = "Forbidden";
-      break;
-    default:
-      title = "Internal Server Error";
-  }
+	switch (status) {
+		case 400:
+			title = "Bad Request";
+			break;
+		case 401:
+			title = "Unauthorized";
+			break;
+		case 403:
+			title = "Forbidden";
+			break;
+		default:
+			title = "Internal Server Error";
+	}
 
-  res.status(status).render("error", {
-	activePage: "",
-    status,
-    title,
-    message: error.message || "An unexpected error occurred."
-  });
+	res.status(status).render("error", {
+		activePage: "",
+		status,
+		title,
+		message: error.message || "An unexpected error occurred.",
+	});
 });
 
 app.listen(port, () =>
