@@ -4,7 +4,7 @@ const User = require('../models/User')
 
 // Render login page
 router.get('/login', (req, res) => {
-  return res.sendFile('login.html', { root: 'public_html' })
+	res.render("login", { title: "Login - JoyfulDay", activePage: "login" });
 })
 
 // Handle login
@@ -30,19 +30,43 @@ router.post('/login', async (req, res) => {
 })
 
 // Render member information page
-router.get('/member-information', (req, res) => {
-  if (!req.session.user) return res.redirect('/login')
-  return res.sendFile('member-information.html', { root: 'public_html' })
-})
+router.get("/member-information", async (req, res) => {
+  if (!req.session.user) return res.redirect("/login");
+  console.log({ user: req.session.user });
+
+  try {
+    const user = await User.findById(req.session.user.id)
+      .populate("bookmarkedTours") // populate bookmarkedTours
+      .lean();
+
+    res.render("member-information", {
+      user,
+      title: "Member - JoyfulDay",
+      activePage: "login",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
 
 // Logout
-router.post('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) console.error(err)
-    res.clearCookie('connect.sid')
-    res.redirect('/login')
-  })
-})
+router.get('/logout', (req, res) => {
+  if (req.session) {
+    // Destroy the session
+    req.session.destroy(err => {
+      if (err) {
+        console.error('Error destroying session:', err);
+        return res.status(500).send('Error logging out');
+      }
+      // Redirect to home page after logout
+      res.redirect('/');
+    });
+  } else {
+    res.redirect('/');
+  }
+});
+
 
 // Handle sign up
 router.post('/signup', async (req, res) => {
