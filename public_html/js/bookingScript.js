@@ -35,7 +35,7 @@ Array.prototype.slice.call(forms).forEach(function (form) {
 				form.classList.add("was-validated");
 			} else {
 				event.preventDefault();
-				alert("Booking submitted successfully!");
+				alert("Bookmarks added successfully!");
 
 				form.reset();
 				form.classList.remove("was-validated");

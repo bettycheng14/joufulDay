@@ -130,7 +130,6 @@ signupForm.addEventListener("submit", async (e) => {
   }
 });
 
-// Optional: Form-level alert for server errors
 function showFieldAlert(form, message, type = "danger") {
   const existing = form.querySelector(".alert");
   if (existing) existing.remove();

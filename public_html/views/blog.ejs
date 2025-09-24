@@ -10,27 +10,7 @@
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">JoyfulDay</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
-                    <li class="nav-item"><a class="nav-link" href="destinations.html">Destinations</a></li>
-                    <li class="nav-item"><a class="nav-link" href="enquiry.html">Enquiry</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="blog.html">Blog</a></li>
-                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <main>
+  <%- include('partials/header') %>
         <!-- Blog Header -->
         <section class="bg-primary text-white text-center py-5">
             <div class="container">
@@ -52,7 +32,7 @@
                             tours.
                             Perfect for exploring off the beaten path.</p>
                         <div class="d-block">
-                            <a href="blog-detail.html" class="btn btn-primary btn-sm">Read More</a>
+                            <a href="blog-detail" class="btn btn-primary btn-sm">Read More</a>
                         </div>
                     </div>
                 </div>
@@ -66,7 +46,7 @@
                             sites
                             over five days. Ideal for first-time visitors.</p>
                         <div class="d-block">
-                            <a href="blog-detail.html" class="btn btn-primary btn-sm">Read More</a>
+                            <a href="blog-detail" class="btn btn-primary btn-sm">Read More</a>
                         </div>
                     </div>
                 </div>
@@ -80,7 +60,7 @@
                             affordable
                             dining, and hidden gems for budget travelers.</p>
                         <div class="d-block">
-                            <a href="blog-detail.html" class="btn btn-primary btn-sm">Read More</a>
+                            <a href="blog-detail" class="btn btn-primary btn-sm">Read More</a>
                         </div>
                     </div>
                 </div>
@@ -88,15 +68,7 @@
                 <!-- Additional blog cards can be added here -->
             </div>
         </section>
-    </main>
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container text-center">
-            <p>© 2025 JoyfulDay Travel Agency. All rights reserved.</p>
-            <p>Phone: +61 123 456 789 | Email: info@joyfulday.com</p>
-            <p>Address: 123 Travel St, Melbourne, VIC</p>
-        </div>
-    </footer>
+    <%- include('partials/footer') %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

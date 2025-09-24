@@ -20,7 +20,16 @@ async function loadMemberInfo() {
   }
 }
 
-window.addEventListener("DOMContentLoaded", loadMemberInfo);
+window.addEventListener("DOMContentLoaded", () => {
+  loadMemberInfo();
+
+  const hash = window.location.hash;
+  if (hash === "#bookmarksSection") {
+    showBookmarks();
+  } else {
+    showInfo();
+  }
+});
 
 // Form submission
 form.addEventListener("submit", async (e) => {
@@ -43,31 +52,48 @@ form.addEventListener("submit", async (e) => {
 
     const data = await res.json();
     if (data.success) {
-      alert("✅ Member information updated successfully!");
+      showFieldAlert(form, "✅ Member information updated successfully!", "success");
+
       loadMemberInfo();
       form.reset();
       [nameInput, phoneInput, passwordInput, confirmPasswordInput].forEach(
         (el) => el.classList.remove("is-valid", "is-invalid")
       );
     } else {
-      alert("Update failed: " + (data.error || "Unknown error"));
+        showFieldAlert(form, "Update failed: " + (data.error || "Unknown error"), "danger");
     }
   } catch (err) {
-    alert("Error connecting to server.");
+      showFieldAlert(form, "Error connecting to server.", "danger");
     console.error(err);
   }
 });
 
-document.getElementById("info-tab").addEventListener("click", () => {
-  document.getElementById("memberInfoSection").classList.remove("d-none");
-  document.getElementById("bookingsSection").classList.add("d-none");
-  document.getElementById("info-tab").classList.add("active");
-  document.getElementById("bookings-tab").classList.remove("active");
-});
+document.getElementById("info-tab").addEventListener("click", showInfo);
+document.getElementById("bookmarks-tab").addEventListener("click", showBookmarks);
 
-document.getElementById("bookings-tab").addEventListener("click", () => {
+function showInfo() {
+  document.getElementById("memberInfoSection").classList.remove("d-none");
+  document.getElementById("bookmarksSection").classList.add("d-none");
+  document.getElementById("info-tab").classList.add("active");
+  document.getElementById("bookmarks-tab").classList.remove("active");
+}
+
+function showBookmarks() {
   document.getElementById("memberInfoSection").classList.add("d-none");
-  document.getElementById("bookingsSection").classList.remove("d-none");
-  document.getElementById("bookings-tab").classList.add("active");
+  document.getElementById("bookmarksSection").classList.remove("d-none");
+  document.getElementById("bookmarks-tab").classList.add("active");
   document.getElementById("info-tab").classList.remove("active");
-});
+}
+
+function showFieldAlert(form, message, type = "danger") {
+  const existing = form.querySelector(".alert");
+  if (existing) existing.remove();
+  const alertDiv = document.createElement("div");
+  alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+  alertDiv.role = "alert";
+  alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+  form.prepend(alertDiv);
+}
