@@ -5,6 +5,19 @@ const phoneInput = document.getElementById("memberPhone");
 const passwordInput = document.getElementById("memberPassword");
 const confirmPasswordInput = document.getElementById("memberConfirmPassword");
 
+// Sections & Tabs
+const sections = {
+	info: document.getElementById("memberInfoSection"),
+	bookmarks: document.getElementById("bookmarksSection"),
+	bookings: document.getElementById("bookingsSection"),
+};
+const tabs = {
+	info: document.getElementById("info-tab"),
+	bookmarks: document.getElementById("bookmarks-tab"),
+	bookings: document.getElementById("bookings-tab"),
+};
+
+// Load member info
 async function loadMemberInfo() {
 	try {
 		const res = await fetch("/api/member");
@@ -20,16 +33,35 @@ async function loadMemberInfo() {
 	}
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-	loadMemberInfo();
+// Show a section
+function showSection(key) {
+	Object.keys(sections).forEach((s) => {
+		sections[s].classList.toggle("d-none", s !== key);
+		tabs[s].classList.toggle("active", s === key);
+	});
+	history.replaceState(null, null, `#${key}Section`);
+}
 
-	const hash = window.location.hash;
-	if (hash === "#bookmarksSection") {
-		showBookmarks();
-	} else {
-		showInfo();
-	}
-});
+// Handle hash navigation
+function handleHash() {
+	if (location.hash === "#bookmarksSection") return showSection("bookmarks");
+	if (location.hash === "#bookingsSection") return showSection("bookings");
+	showSection("info");
+}
+
+// Show alert on top of the form
+function showFieldAlert(form, message, type = "danger") {
+	const existing = form.querySelector(".alert");
+	if (existing) existing.remove();
+	const alertDiv = document.createElement("div");
+	alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+	alertDiv.role = "alert";
+	alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+	form.prepend(alertDiv);
+}
 
 // Form submission
 form.addEventListener("submit", async (e) => {
@@ -40,9 +72,9 @@ form.addEventListener("submit", async (e) => {
 	const password = passwordInput.value.trim();
 	const confirm = confirmPasswordInput.value.trim();
 
-	if (!name) return alert("Name is required.");
+	if (!name) return showFieldAlert(form, "Name is required");
 	if (password && password !== confirm)
-		return alert("Passwords do not match.");
+		return showFieldAlert(form, "Passwords do not match.");
 
 	try {
 		const res = await fetch("/api/member", {
@@ -60,69 +92,41 @@ form.addEventListener("submit", async (e) => {
 			);
 
 			loadMemberInfo();
-			form.reset();
-			[
-				nameInput,
-				phoneInput,
-				passwordInput,
-				confirmPasswordInput,
-			].forEach((el) => el.classList.remove("is-valid", "is-invalid"));
-		} else {
-			showFieldAlert(
-				form,
-				"Update failed: " + (data.error || "Unknown error"),
-				"danger"
-			);
 		}
-	} catch (err) {
-		showFieldAlert(form, "Error connecting to server.", "danger");
+	} catch {
+		showFieldAlert(form, "Error connecting to server.");
 		console.error(err);
 	}
 });
 
-document.getElementById("info-tab").addEventListener("click", showInfo);
-document.getElementById("bookings-tab").addEventListener("click", showBookings);
-document
-	.getElementById("bookmarks-tab")
-	.addEventListener("click", showBookmarks);
+// Delete bookmarks
+document.addEventListener("click", async (e) => {
+	if (!e.target.classList.contains("remove-bookmark-btn")) return;
+	const tourId = e.target.dataset.tourId;
+	if (!confirm("Are you sure you want to remove this bookmark?")) return;
 
-function showInfo() {
-	document.getElementById("memberInfoSection").classList.remove("d-none");
-	document.getElementById("bookmarksSection").classList.add("d-none");
-	document.getElementById("bookingsSection").classList.add("d-none");
+	try {
+		const res = await fetch(`/user/bookmark/${tourId}`, {
+			method: "DELETE",
+		});
+		const result = await res.json();
+		if (result.success) {
+			e.target.closest(".col").remove();
+			const grid = sections.bookmarks.querySelector(".row");
+			if (!grid || !grid.children.length) {
+				sections.bookmarks.innerHTML = `<h3 class="mb-4"><i class="bi bi-bookmarks-fill"></i> Your Bookmarks</h3><p>You have not bookmarked any tours yet.</p>`;
+			}
+		} else alert("❌ Failed to remove bookmark.");
+	} catch {
+		alert("⚠️ Something went wrong.");
+	}
+});
 
-	document.getElementById("info-tab").classList.add("active");
-	document.getElementById("bookmarks-tab").classList.remove("active");
-	document.getElementById("bookings-tab").classList.remove("active");
-}
-function showBookmarks() {
-	document.getElementById("memberInfoSection").classList.add("d-none");
-	document.getElementById("bookmarksSection").classList.remove("d-none");
-	document.getElementById("bookingsSection").classList.add("d-none");
-
-	document.getElementById("bookmarks-tab").classList.add("active");
-	document.getElementById("info-tab").classList.remove("active");
-	document.getElementById("bookings-tab").classList.remove("active");
-}
-function showBookings() {
-	document.getElementById("memberInfoSection").classList.add("d-none");
-	document.getElementById("bookmarksSection").classList.add("d-none");
-	document.getElementById("bookingsSection").classList.remove("d-none");
-
-	document.getElementById("bookings-tab").classList.add("active");
-	document.getElementById("info-tab").classList.remove("active");
-	document.getElementById("bookmarks-tab").classList.remove("active");
-}
-
-function showFieldAlert(form, message, type = "danger") {
-	const existing = form.querySelector(".alert");
-	if (existing) existing.remove();
-	const alertDiv = document.createElement("div");
-	alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-3`;
-	alertDiv.role = "alert";
-	alertDiv.innerHTML = `
-    ${message}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  `;
-	form.prepend(alertDiv);
-}
+window.addEventListener("DOMContentLoaded", () => {
+	loadMemberInfo();
+	handleHash();
+	window.addEventListener("hashchange", handleHash);
+	tabs.info.onclick = () => showSection("info");
+	tabs.bookmarks.onclick = () => showSection("bookmarks");
+	tabs.bookings.onclick = () => showSection("bookings");
+});

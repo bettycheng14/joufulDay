@@ -49,21 +49,30 @@ loginForm.addEventListener("submit", async (e) => {
   loginPassword.dispatchEvent(new Event("input"));
 
   if (!loginEmail.classList.contains("is-invalid") && !loginPassword.classList.contains("is-invalid")) {
+    const loginBtn = loginForm.querySelector("button[type='submit']");
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Logging In...`;
+
     try {
       const res = await fetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: loginEmail.value.trim(), password: loginPassword.value.trim() }),
       });
+
       if (res.redirected) {
         window.location.href = res.url;
       } else {
         const text = await res.text();
         showFieldAlert(loginForm, text, "danger");
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = "Login";
       }
     } catch (err) {
       showFieldAlert(loginForm, "Error connecting to server.", "danger");
       console.error(err);
+      loginBtn.disabled = false;
+      loginBtn.innerHTML = "Login";
     }
   }
 });
@@ -98,7 +107,9 @@ signupPassword.addEventListener("input", () => signupConfirmPassword.dispatchEve
 
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  [signupName, signupEmail, signupPassword, signupConfirmPassword].forEach((el) => el.dispatchEvent(new Event("input")));
+  [signupName, signupEmail, signupPassword, signupConfirmPassword].forEach((el) =>
+    el.dispatchEvent(new Event("input"))
+  );
 
   if (
     !signupName.classList.contains("is-invalid") &&
@@ -106,6 +117,10 @@ signupForm.addEventListener("submit", async (e) => {
     !signupPassword.classList.contains("is-invalid") &&
     !signupConfirmPassword.classList.contains("is-invalid")
   ) {
+    const signupBtn = signupForm.querySelector("button[type='submit']");
+    signupBtn.disabled = true;
+    signupBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Signing Up...`;
+
     try {
       const res = await fetch("/signup", {
         method: "POST",
@@ -122,10 +137,14 @@ signupForm.addEventListener("submit", async (e) => {
       } else {
         const text = await res.text();
         showFieldAlert(signupForm, text, "danger");
+        signupBtn.disabled = false;
+        signupBtn.innerHTML = "Sign Up";
       }
     } catch (err) {
       showFieldAlert(signupForm, "Error connecting to server.", "danger");
       console.error(err);
+      signupBtn.disabled = false;
+      signupBtn.innerHTML = "Sign Up";
     }
   }
 });

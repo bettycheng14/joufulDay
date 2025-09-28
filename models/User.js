@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
 	role: { type: String, default: "user" },
 	bookmarkedTours: [{ type: Schema.Types.ObjectId, ref: "Tour" }],
 	bookedTours: [{ type: Schema.Types.ObjectId, ref: "Booking" }],
+	isVerified: { type: Boolean, default: false },
+	otp: { type: String },
+	otpExpires: { type: Date },
+	resetPasswordToken: String,
+	resetPasswordExpires: Date,
 });
 
 userSchema.methods.setPassword = async function (plain) {
