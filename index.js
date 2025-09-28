@@ -9,6 +9,7 @@ const morgan = require("morgan");
 const authRoutes = require("./routes/authRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
+const tourRoutes = require("./routes/tourRoutes");
 const Tour = require("./models/Tour");
 const User = require("./models/User");
 
@@ -64,7 +65,9 @@ app.use((req, res, next) => {
 app.use("/", authRoutes);
 app.use("/", enquiryRoutes);
 app.use("/", bookingRoutes);
+app.use("/", tourRoutes);
 
+// index page
 app.get("/", async (req, res) => {
 	try {
 		let tours = await Tour.find();
@@ -101,7 +104,7 @@ app.get("/blog-detail", (req, res) => {
 	});
 });
 
-// destinations
+// Destinations page
 app.get("/destinations", async (req, res) => {
 	try {
 		const searchQuery = req.query.q || "";
@@ -115,7 +118,16 @@ app.get("/destinations", async (req, res) => {
 		const filter = {
 			price: { $gte: priceMin, $lte: priceMax },
 		};
-		if (searchQuery) filter.title = { $regex: searchQuery, $options: "i" };
+
+		if (searchQuery) {
+			const regex = new RegExp(searchQuery, "i");
+			filter.$or = [
+				{ title: regex },
+				{ description: regex },
+				{ tags: regex },
+				{ address: regex },
+			];
+		}
 		if (selectedCategory) filter.category = selectedCategory;
 
 		const totalTours = await Tour.countDocuments(filter);
@@ -168,69 +180,78 @@ app.get("/destinations", async (req, res) => {
 
 // Tour details page
 app.get("/tour/:id", async (req, res) => {
-	const user = await User.findById(req.session.user?.id).populate(
-		"bookmarkedTours"
-	);
+	try {
+		const user = await User.findById(req.session.user?.id).populate(
+			"bookmarkedTours"
+		);
 
-	const tour = await Tour.findById(req.params.id);
-	if (!tour) return res.status(404).send("Tour not found");
-	res.render("tour-details", {
-		user,
-		activePage: "destinations",
-		tour,
-		query: req.query,
-	});
+		const tour = await Tour.findById(req.params.id);
+		const mapQuery = encodeURIComponent(tour.address);
+		console.log(mapQuery);
+
+		if (!tour) return res.status(404).send("Tour not found");
+		res.render("tour-details", {
+			user,
+			activePage: "destinations",
+			tour,
+			mapQuery,
+			query: req.query,
+		});
+	} catch (error) {
+		console.error(err);
+		res.status(500).send("Error loading tours");
+	}
 });
 
 // Bookmark a tour
 app.post("/tour/:id/bookmark", async (req, res) => {
-	try {
-		// Ensure user is logged in
-		if (!req.session.user)
-			return res.status(401).send("Please log in first.");
-		console.log({ user: req.session.user });
+    try {
+        // Ensure user is logged in
+        if (!req.session.user)
+            return res.status(401).send("Please log in first.");
+        console.log({ user: req.session.user });
 
-		const tourId = req.params.id;
+        const tourId = req.params.id;
 
-		// Find user in DB
-		const user = await User.findById(req.session.user.id);
-		if (!user) {
-			console.log("no user", user);
-			req.session.destroy(); // clear invalid session
-			return res.redirect("/login");
-		}
+        // Find user in DB
+        const user = await User.findById(req.session.user.id);
+        if (!user) {
+            console.log("no user", user);
+            req.session.destroy(); // clear invalid session
+            return res.redirect("/login");
+        }
 
-		// Check if tour exists
-		const tour = await Tour.findById(tourId);
-		if (!tour) return res.status(404).send("Tour not found.");
+        // Check if tour exists
+        const tour = await Tour.findById(tourId);
+        if (!tour) return res.status(404).send("Tour not found.");
 
-		// Avoid duplicate bookmarks
-		if (!user.bookmarkedTours.includes(tourId)) {
-			user.bookmarkedTours.push(tourId);
-			await user.save();
-		}
+        // Avoid duplicate bookmarks
+        if (!user.bookmarkedTours.includes(tourId)) {
+            user.bookmarkedTours.push(tourId);
+            await user.save();
+        }
 
-		res.redirect("/member-information");
-	} catch (err) {
-		console.error(err);
-		res.status(500).send("Error bookmarks tour.");
-	}
+        res.redirect("/member-information#bookmarksSection");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error bookmarks tour.");
+    }
 });
 
 // 404 handler
 app.use((req, res) => {
-	res.status(404).render("error", {
-		activePage: "",
+  res.status(404).render("error", {
+    activePage: "",
 
-		status: 404,
-		title: "Page Not Found",
+    status: 404,
+    title: "Page Not Found",
 		message: "The page you are looking for does not exist.",
-	});
+  });
 });
 
-// General error handler
+// Error handler
 app.use((error, req, res, next) => {
-	const status = error.status || 500;
+  const status = error.status || 500;
 	let title;
 
 	switch (status) {
@@ -247,12 +268,12 @@ app.use((error, req, res, next) => {
 			title = "Internal Server Error";
 	}
 
-	res.status(status).render("error", {
-		activePage: "",
-		status,
-		title,
+  res.status(status).render("error", {
+    activePage: "",
+    status,
+    title,
 		message: error.message || "An unexpected error occurred.",
-	});
+  });
 });
 
 app.listen(port, () =>
