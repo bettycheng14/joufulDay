@@ -16,7 +16,7 @@
         <section class="bg-primary text-white text-center py-5">
             <div class="container">
                 <h1>Member Information</h1>
-                <p class="lead">Manage your personal details and view your bookmarks</p>
+                <p class="lead">Manage your Personal Details, Bookmarks and Bookings</p>
             </div>
         </section>
 
@@ -38,7 +38,7 @@
                     <div class="col-md-9">
                         <!-- Member Info Form -->
                         <div id="memberInfoSection">
-                            <h3 class="mb-4">Update Your Information</h3>
+                            <h3 class="mb-4"><i class="bi bi-person-lines-fill"></i> Your Information</h3>
                             <form id="memberInfoForm" novalidate>
                                 <div class="mb-3">
                                     <label for="memberName" class="form-label">Full Name</label>
@@ -81,8 +81,8 @@
 
                         <!-- bookmarks Section -->
                         <div id="bookmarksSection" class="d-none">
-                            <h3 class="mb-4">Your bookmarks</h3>
-                            <% if (user?.bookmarkedTours.length===0) { %>
+                            <h3 class="mb-4"><i class="bi bi-bookmarks-fill"></i> Your Bookmarks</h3>
+                            <% if (!user?.bookmarkedTours || user.bookmarkedTours.length===0) { %>
                                 <p>You have not bookmarked any tours yet.</p>
                                 <% } else { %>
                                     <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -100,33 +100,101 @@
                                                         </p>
                                                         <p class="fw-bold">From A$<%= tour.price %>
                                                         </p>
-                                                        <a href="/tour/<%= tour._id %>"
-                                                            class="btn btn-primary mt-auto">View Details</a>
+                                                        <div class="mt-auto d-flex justify-content-between">
+                                                            <a href="/tour/<%= tour._id %>" class="btn btn-primary">View
+                                                                Details</a>
+                                                            <button
+                                                                class="btn btn-outline-danger btn-sm remove-bookmark-btn"
+                                                                data-tour-id="<%= tour._id %>">
+                                                                <i class="bi bi-bookmark-x"></i> Remove
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <% }) %>
                                     </div>
                                     <% } %>
-
                         </div>
+
                         <!-- Bookings Section -->
                         <div id="bookingsSection" class="d-none">
-                            <h3 class="mb-4">Your Bookings</h3>
-                            <p class="text-muted mb-3">Here you can view your past and upcoming bookmarks.</p>
+                            <h3 class="mb-4"><i class="bi bi-card-list"></i> Your Bookings</h3>
+                            <p class="text-muted mb-3">Here you can view your past and upcoming bookings.</p>
                             <% if (!user?.bookedTours || user.bookedTours.length===0) { %>
                                 <p>You have no bookings yet.</p>
                                 <% } else { %>
+                                    <div class="d-flex justify-content-end mb-3 row">
+                                        <form method="GET" action="/member-information#bookingsSection"
+                                            class="d-flex gap-2 col-md-6">
+                                            <select name="sortOption" class="form-select">
+                                                <option value="createdAt_desc" <%=sortOption==='createdAt_desc'
+                                                    ? 'selected' : '' %>>Order Date (Latest) </option>
+                                                <option value="createdAt_asc" <%=sortOption==='createdAt_asc'
+                                                    ? 'selected' : '' %>>Order Date (Oldest) </option>
+                                                <option value="tourDate_asc" <%=sortOption==='tourDate_asc' ? 'selected'
+                                                    : '' %>>Tour Date (Oldest) </option>
+                                                <option value="tourDate_desc" <%=sortOption==='tourDate_desc'
+                                                    ? 'selected' : '' %>>Tour Date (Latest) </option>
+                                            </select>
+
+                                            <!-- Filter Dropdown -->
+                                            <select name="statusFilter" class="form-select">
+                                                <option value="all" <%=statusFilter==='all' ? 'selected' : '' %>>All
+                                                    Orders</option>
+                                                <option value="confirmed" <%=statusFilter==='confirmed' ? 'selected'
+                                                    : '' %>>Confirmed</option>
+                                                <option value="pending" <%=statusFilter==='pending' ? 'selected' : '' %>
+                                                    >Pending</option>
+                                            </select>
+
+                                            <button type="submit" class="btn btn-outline-primary">Apply</button>
+                                        </form>
+                                    </div>
+
                                     <div class="row g-4">
                                         <% user.bookedTours.forEach(booking=> { %>
                                             <div class="col-12">
-                                                <div class="card h-100">
+                                                <div class="card h-100 position-relative">
+                                                    <span
+                                                        class="position-absolute bottom-0 end-0 m-2 badge bg-light text-dark">
+                                                        Ordered At: <%= new
+                                                            Date(booking.createdAt).toISOString().split('T')[0].replace(/-/g, '/'
+                                                            ) %>
+                                                    </span>
                                                     <div class="row g-0 h-100">
                                                         <!-- Image on left -->
                                                         <div class="col-md-4">
-                                                            <img src="<%= booking.tour.imageUrl %>"
-                                                                class="img-fluid h-100 w-100 object-fit-cover rounded"
-                                                                alt="<%= booking.tour.title %>">
+                                                            <% if(booking.paymentStatus !=="Paid" ) { %>
+                                                                <div
+                                                                    class="position-absolute top-0 start-0 bg-danger text-light px-2 py-2 rounded-bottom-start">
+                                                                    Pending Payment
+                                                                </div>
+                                                                <% } else { %>
+                                                                    <div
+                                                                        class="position-absolute top-0 start-0 bg-primary text-light px-2 py-2 rounded-bottom-start">
+                                                                        Confirmed
+                                                                    </div>
+                                                                    <% } %>
+                                                                        <img src="<%= booking.tour.imageUrl %>"
+                                                                            class="img-fluid h-100 w-100 object-fit-cover rounded"
+                                                                            alt="<%= booking.tour.title %>">
+                                                                        <div
+                                                                            class="position-absolute bottom-0 end-0 bg-light text-dark px-2 py-1 rounded-bottom-start">
+                                                                            Ordered At: <% const d=new
+                                                                                Date(booking.createdAt); const
+                                                                                year=d.getFullYear(); const
+                                                                                month=String(d.getMonth() +
+                                                                                1).padStart(2, '0' ); const
+                                                                                day=String(d.getDate()).padStart(2, '0'
+                                                                                ); const
+                                                                                hours=String(d.getHours()).padStart(2, '0'
+                                                                                ); const
+                                                                                minutes=String(d.getMinutes()).padStart(2, '0'
+                                                                                ); %>
+                                                                                <%= `${year}/${month}/${day},
+                                                                                    ${hours}:${minutes}` %>
+                                                                        </div>
                                                         </div>
                                                         <!-- Details on right -->
                                                         <div class="col-md-8">
@@ -137,7 +205,7 @@
                                                                 <p class="card-text">
                                                                     <%= booking.tour.description.substring(0, 150) %>...
                                                                 </p>
-                                                                <p class="mb-1"><strong>Booked Date:</strong>
+                                                                <p class="mt-2 mb-1"><strong>Booked Date:</strong>
                                                                     <%= new
                                                                         Date(booking.tourDate).toISOString().split('T')[0].replace(/-/g, '/'
                                                                         ) %>
