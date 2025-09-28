@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Sedgwick+Ave&display=swap');
-/* Reset some default styling */
+
 body, h1, h2, h3, h4, h5, h6, p {
     margin: 0;
     padding: 0;
@@ -18,9 +18,9 @@ html, body {
 }
 
 main {
-    flex: 1; /* Push footer to bottom */
+    flex: 1;
 }
-/* Navbar */
+
 .navbar {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
@@ -54,7 +54,7 @@ main {
 }
 
 #heroCarousel .carousel-item {
-    height: 50vh;               /* force each slide to match container height */
+    height: 50vh;
 }
 
 #heroCarousel img {
@@ -68,7 +68,7 @@ main {
 }
 
 .breadcrumb a {
-    color: #0d6efd; /* Bootstrap primary color */
+    color: #0d6efd;
     text-decoration: none;
 }
 
@@ -167,6 +167,43 @@ section.bg-primary p.lead {
     gap: 6px;
 }
 
+.badge-popular {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #ff6b6b;
+    color: #fff;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 0.25rem;
+    z-index: 10;
+}
+
+#autocomplete-list {
+  position: absolute;
+  border: 1px solid #ced4da;
+  border-top: none;
+  z-index: 99;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #fff;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 6px 6px;
+}
+
+#autocomplete-list div {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+#autocomplete-list div:hover {
+  background-color: #f1f1f1;
+}
+
 /* Footer */
 footer {
     background-color: #222;
@@ -205,11 +242,11 @@ footer p {
     }
 
     #heroCarousel .carousel-item {
-        height: 20vh;               /* force each slide to match container height */
+        height: 20vh;
     }
      #heroCarousel .carousel-caption {
         top: auto;
-        bottom: 10%; /* move down a bit for better view */
+        bottom: 10%;
         transform: none;
         text-align: center;
     }
