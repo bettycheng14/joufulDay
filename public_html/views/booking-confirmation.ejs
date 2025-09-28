@@ -2,29 +2,48 @@
 
     <section class="bg-primary text-white text-center py-5">
         <div class="container">
-            <h1>Order Confirmation</h1>
-            <p class="lead">Your booking has been successfully processed!</p>
+            <h1>🎉 Booking Confirmed!</h1>
+            <p class="lead mb-0">Thank you for choosing JoyfulDay Tours. Your booking has been successfully processed.
+            </p>
         </div>
     </section>
 
     <div class="container py-5 d-flex justify-content-center">
-        <div class="card shadow-lg rounded-4" style="max-width: 600px; width: 100%;">
+        <div class="card shadow-lg rounded-4 border-0" style="max-width: 600px; width: 100%;">
             <div class="card-body text-center">
-                <h3 class="card-title mb-4">✅ Booking Confirmed!</h3>
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                </div>
+
+                <h3 class="card-title mb-4 fw-bold">Your Booking Details</h3>
 
                 <ul class="list-group list-group-flush mb-4 text-start">
-                    <li class="list-group-item"><strong>Tour:</strong>
-                        <%= tourName %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Tour:</span>
+                        <span class="fw-semibold">
+                            <%= tourName %>
+                        </span>
                     </li>
-                    <li class="list-group-item"><strong>Tour Date:</strong>
-                        <%= date %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Tour Date:</span>
+                        <span class="fw-semibold">
+                            <%= date %>
+                        </span>
                     </li>
-                    <li class="list-group-item"><strong>Quantity:</strong>
-                        <%= quantity %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Quantity:</span>
+                        <span class="fw-semibold">
+                            <%= quantity %>
+                        </span>
                     </li>
                 </ul>
 
-                <a href="/member-information" class="btn btn-primary w-100">View My Bookings</a>
+                <p class="mb-4 text-muted">We look forward to seeing you on your tour. You can view all your bookings in
+                    your account.</p>
+
+                <a href="/member-information#bookingsSection" class="btn btn-success btn-lg w-100 rounded-pill shadow-sm">
+                    View My Bookings
+                </a>
             </div>
         </div>
     </div>

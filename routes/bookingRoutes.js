@@ -4,9 +4,9 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const Tour = require("../models/Tour");
 const User = require("../models/User");
 const Booking = require("../models/Booking");
-const { sendOrderConfirmation } = require("../utils/email");
+const { sendEmail, bookingTemplate } = require("../utils/email");
 
-// POST: Create Stripe session & initiate booking
+// Booking with Stripe session (payment)
 router.post("/tour/:id/book", async (req, res) => {
 	try {
 		const userId = req.session.user?.id;
@@ -32,7 +32,7 @@ router.post("/tour/:id/book", async (req, res) => {
 			paymentStatus: "Pending",
 		});
 
-		// Save reference in user document
+		// Save booking reference in user document
 		await User.findByIdAndUpdate(userId, {
 			$push: { bookedTours: booking._id },
 		});
@@ -75,6 +75,7 @@ router.post("/tour/:id/book", async (req, res) => {
 	}
 });
 
+// Order confirmation page after payment success
 router.get("/booking-confirmation/:bookingId", async (req, res) => {
 	const { bookingId } = req.params;
 	try {
@@ -88,13 +89,17 @@ router.get("/booking-confirmation/:bookingId", async (req, res) => {
 			await booking.save();
 		}
 
-		// Send confirmation email (async, no need to block response)
-		sendOrderConfirmation(booking.user.email, {
+		// Send confirmation email
+		await sendEmail({
+			to: booking.user.email,
+			subject: "Your JoyfulDay Booking Confirmation 🎉",
+			html: bookingTemplate({
 			userName: booking.user.name,
 			tourName: booking.tour.title,
 			tourDate: booking.tourDate,
 			quantity: booking.quantity,
 			paymentStatus: booking.paymentStatus || "Confirmed",
+			}),
 		}).catch(console.error);
 
 		const date = new Date(booking.tourDate)
